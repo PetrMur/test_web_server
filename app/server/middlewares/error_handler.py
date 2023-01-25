@@ -1,7 +1,7 @@
 from aiohttp import web
 from app.utils.logger import Logger
-from app.utils.exceptions import ServerException
-from app.utils.outgoing_response import ServerResponse
+from app.utils.outgoing_response import Response
+from app.utils.exceptions import NotFoundError, ServerException, ValidationError
 
 
 @web.middleware
@@ -17,9 +17,9 @@ async def error_handler_middleware(request: web.Request, handler) -> dict:
     try:
         response = await handler(request)
 
-    except ServerException as e:
+    except (ServerException, NotFoundError, ValidationError) as e:
         Logger().error(f'{e.log_error_text}')
-        response = ServerResponse()
+        response = Response()
         response.make_exception(e.txt, e.status_code)
 
     return response

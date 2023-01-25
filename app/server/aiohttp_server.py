@@ -27,7 +27,8 @@ class Server:
     @staticmethod
     async def make_db_conn(app):
         app['db'] = MysqlClient()
+        await app['db'].create_pool()
 
     @staticmethod
     async def close_db_conn(app):
-        app['db'].close()
+        await app['db'].close()

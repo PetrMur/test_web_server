@@ -1,7 +1,7 @@
 from aiohttp import web
 
 
-class ServerResponse:
+class Response:
     def __init__(self):
         self._data = None
         self.status_code = 200

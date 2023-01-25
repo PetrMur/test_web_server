@@ -20,7 +20,7 @@ class RedisContextConnection:
         return self.redis.client()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        self.redis.close()
+        await self.redis.close()
 
 
 class RedisClient:
@@ -33,8 +33,7 @@ class RedisClient:
             return value
 
     @classmethod
-    async def set_item(cls, pair) -> None:
+    async def set_item(cls, key, value) -> None:
         """Set new value in redis"""
-
         async with RedisContextConnection() as conn:
-            await conn.set(*pair)
+            await conn.set(key, value)

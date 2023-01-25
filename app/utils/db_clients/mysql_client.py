@@ -7,13 +7,19 @@ from settings.credentials import MYSQL_CREDENTIALS
 
 
 def db_query_error_handler(coroutine):
-    async def wrapped(query: str):
+    async def wrapped(client, query: str, args):
         try:
-            return await coroutine(query)
+            return await coroutine(client, query, args)
         except Exception as e:
             Logger().error('db error')
             Logger().error(f'{query}')
             Logger().error(traceback.format_exc())
+            try:
+                await MysqlClient().create_pool()
+                return await coroutine(client, query, args)
+            except Exception:
+                Logger().error('2 bad attempt')
+                Logger().error(traceback.format_exc())
     return wrapped
 
 
@@ -37,27 +43,35 @@ class MysqlClient(metaclass=Singleton):
                                                    db=self.DATABASE, minsize=5, maxsize=15)
 
     @db_query_error_handler
-    async def query_select_one(self, query) -> Tuple:
+    async def query_select_one(self, query, args) -> Tuple:
         async with self.pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                await cursor.execute(query, ())
+                await cursor.execute(query, args)
                 result = await cursor.fetchone()
                 await conn.commit()
                 return result
 
     @db_query_error_handler
-    async def query_insert(self, query) -> Tuple:
+    async def query_insert(self, query, args) -> Tuple:
         async with self.pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                await cursor.execute(query, ())
+                await cursor.execute(query, args)
                 await conn.commit()
                 return cursor.lastrowid
 
     @db_query_error_handler
-    async def query_delete(self, query) -> Tuple:
+    async def query_update_one(self, query, args) -> Tuple:
         async with self.pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                await cursor.execute(query, ())
+                await cursor.execute(query, args)
+                await conn.commit()
+                return cursor.lastrowid
+
+    @db_query_error_handler
+    async def query_delete(self, query, args) -> Tuple:
+        async with self.pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(query, args)
                 await conn.commit()
                 return cursor.lastrowid
 

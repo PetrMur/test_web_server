@@ -1,14 +1,12 @@
-from aiohttp.web import Request
+from datetime import datetime
 from app.validator import Validator
-from app.models.models import AbstractModel
 
 
 class IncomingRequest:
-    def __init__(self, request: Request, model_scheme: AbstractModel, need_validation: bool = True):
-        self.request = request
-        fields = request.query
-        self.model = model_scheme.create_object(fields)
-        self.fields = self.model.fields()
+    def __init__(self, body, model_scheme, need_validation: bool = True):
+        self.body = body
+        self.model = model_scheme.create_object(body)
+        self.fields = self.model.get_fields
 
         if need_validation:
-            Validator(self.fields).validate()
+            Validator(self.fields, self.model.get_required).validate()
