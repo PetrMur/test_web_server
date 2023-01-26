@@ -7,7 +7,7 @@ from app.utils.db_clients.redis_client import RedisClient
 class Dadata:
     token = DADATA['token']
     secret = DADATA['secret']
-    url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/country'
+    country_search_url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/country'
 
     @classmethod
     async def get_country_data(cls, country):
@@ -18,13 +18,13 @@ class Dadata:
             async with ClientSession() as session:
                 headers = cls.get_headers()
                 data = {"query": country}
-                response = await session.post(url=cls.url, headers=headers, json=data)
+                response = await session.post(url=cls.country_search_url, headers=headers, json=data)
                 response.raise_for_status()
                 country_code = await response.json()
                 try:
                     country_code = country_code['suggestions'][0]['data']['code']
                 except Exception:
-                    raise NotFoundError(description=f"Not found county {country}")
+                    raise NotFoundError(description=f"Not found country {country}")
             await RedisClient.set_item(country, country_code)
         country_code = country_code if isinstance(country_code, str) else country_code.decode()
         return country_code

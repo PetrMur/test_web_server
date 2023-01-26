@@ -13,7 +13,8 @@ class Logger(metaclass=Singleton):
         self.logger = logging.getLogger(__name__)
         self.logger.addHandler(logging.NullHandler())
         if file not in os.listdir():
-            open(file, 'w+')
+            f = open(file, 'w+')
+            f.close()
         logger_handler = logging.FileHandler(file)
         self.logger.addHandler(logger_handler)
 

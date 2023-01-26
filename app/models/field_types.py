@@ -20,19 +20,22 @@ class Field(ABC):
 
 class SmallString(Field):
     name = 'small_string'
-    description = f'must be less than 50 symbols'
+    max_len = 50
+    description = f'must be less than {max_len} symbols'
 
     def is_correct(self):
-        return isinstance(self.value, str) and len(self.value) <= 50
+        return isinstance(self.value, str) and len(self.value) <= self.max_len
 
 
 class SmallStringFIO(Field):
     name = 'small_string_fio'
+    max_len = 50
     rule = re.compile(r'^[А-Яа-я\s\-]+$')
-    description = 'must be less than 50 symbols and consist only of cyrillic characters, space characters and dashes'
+    description = f'must be less than {max_len} ' \
+                  f'symbols and consist only of cyrillic characters, space characters and dashes'
 
     def is_correct(self):
-        return isinstance(self.value, str) and len(self.value) <= 50 and self.rule.search(self.value)
+        return isinstance(self.value, str) and len(self.value) <= self.max_len and self.rule.search(self.value)
 
 
 class PhoneNumber(Field):
