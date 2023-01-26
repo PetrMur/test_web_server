@@ -1,7 +1,6 @@
 import unittest
 from app.models.field_types import Email
 from app.models.models import AbstractModel
-from app.utils.exceptions import ValidationError
 from app.utils.incoming_request import IncomingRequest
 
 
